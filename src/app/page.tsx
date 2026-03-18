@@ -1,27 +1,14 @@
 import Link from "next/link";
-import { prisma } from "@/server/db";
 import { UsersIcon, BeakerIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const threeDaysAgo = new Date();
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-
-  const [clientCount, productCount, quoteCount, followUps] = await Promise.all([
-    prisma.client.count(),
-    prisma.product.count(),
-    prisma.quote.count(),
-    prisma.quote.findMany({
-      where: {
-        status: "SENT",
-        createdAt: { lt: threeDaysAgo },
-      },
-      orderBy: { createdAt: "asc" },
-      take: 10,
-      include: { client: true },
-    }),
-  ]);
+  // Temporary bypass for Vercel debugging
+  const clientCount = 0;
+  const productCount = 0;
+  const quoteCount = 0;
+  const followUps: any[] = [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
