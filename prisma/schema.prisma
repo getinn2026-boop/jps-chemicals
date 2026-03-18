@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum OrderStatus {
+  NEW
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Sequence {
+  key   String @id
+  value Int
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  email     String?
+  phone     String?
+  address   String?
+  products  Product[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id           String    @id @default(cuid())
+  name         String
+  sku          String?
+  casNumber    String?
+  unit         String?
+  currency     String    @default("INR")
+  defaultPrice Decimal?
+  isActive     Boolean   @default(true)
+  supplierId   String?
+  supplier     Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  quoteItems   QuoteItem[]
+  orderItems   OrderItem[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([name])
+  @@index([sku])
+  @@index([casNumber])
+  @@index([supplierId])
+}
+
+model Client {
+  id           String     @id @default(cuid())
+  name         String
+  companyName  String?
+  email        String?
+  phone        String?
+  address      String?
+  gstin        String?
+  quotes       Quote[]
+  orders       Order[]
+  activities   Activity[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([name])
+  @@index([companyName])
+  @@index([email])
+  @@index([phone])
+}
+
+model Quote {
+  id          String       @id @default(cuid())
+  quoteNumber String       @unique
+  clientId    String
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  status      QuoteStatus  @default(DRAFT)
+  validUntil  DateTime?
+  notes       String?
+  subtotal    Decimal      @default(0)
+  tax         Decimal      @default(0)
+  total       Decimal      @default(0)
+  items       QuoteItem[]
+  order       Order?
+  activities  Activity[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model QuoteItem {
+  id          String   @id @default(cuid())
+  quoteId     String
+  quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  description String
+  quantity    Decimal
+  unit        String?
+  unitPrice   Decimal
+  lineTotal   Decimal
+
+  @@index([quoteId])
+  @@index([productId])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  clientId    String
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  quoteId     String?     @unique
+  quote       Quote?      @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  status      OrderStatus @default(NEW)
+  subtotal    Decimal     @default(0)
+  tax         Decimal     @default(0)
+  total       Decimal     @default(0)
+  items       OrderItem[]
+  activities  Activity[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  description String
+  quantity    Decimal
+  unit        String?
+  unitPrice   Decimal
+  lineTotal   Decimal
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  quoteId   String?
+  quote     Quote?   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  orderId   String?
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([clientId])
+  @@index([quoteId])
+  @@index([orderId])
+  @@index([createdAt])
+}
