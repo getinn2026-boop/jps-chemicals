@@ -4,12 +4,15 @@ import { Pool } from "pg";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-const connectionString = process.env.DATABASE_URL;
-
+// Force strict SSL and explicit connection string for Vercel Serverless Functions
 const pool = new Pool({ 
-  connectionString,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  },
+  max: 1 // Crucial for serverless environments to prevent connection limits
 });
+
 const adapter = new PrismaPg(pool);
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter } as any);

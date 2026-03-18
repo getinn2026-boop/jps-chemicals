@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
@@ -17,6 +11,5 @@
         "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization"
       }
     }
-  ],
-  "env": {}
+  ]
 }
