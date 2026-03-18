@@ -2,6 +2,7 @@
 scripts/
 *.js
 *.mjs
-!next.config.js
-!postcss.config.js
-!tailwind.config.js
+!next.config.ts
+!postcss.config.mjs
+!tailwind.config.ts
+!eslint.config.mjs
