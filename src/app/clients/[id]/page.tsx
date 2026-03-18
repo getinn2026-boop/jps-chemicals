@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/server/db-simple";
 
+export const dynamic = 'force-dynamic';
+
 type ClientPageProps = {
   params: Promise<{ id: string }>;
 };

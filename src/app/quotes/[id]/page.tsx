@@ -5,6 +5,8 @@ import { createOrderFromQuote, setQuoteStatus } from "../actions";
 import { BeakerIcon, DocumentTextIcon, PrinterIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 type QuotePageProps = {
   params: Promise<{ id: string }>;
 };
