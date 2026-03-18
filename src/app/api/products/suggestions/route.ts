@@ -35,7 +35,7 @@ export async function GET(request: Request) {
         unit: product.unit,
         defaultPrice: product.defaultPrice,
         supplier: {
-          name: product.supplier.name
+          name: product.supplier?.name || 'Unknown Supplier'
         }
       }))
     });
