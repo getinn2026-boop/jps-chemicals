@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/server/db";
-import { setOrderStatus } from "../actions";
 
 export const dynamic = 'force-dynamic';
 
@@ -60,7 +59,7 @@ export default async function OrderPage({ params }: OrderPageProps) {
               </tr>
             </thead>
             <tbody>
-              {order.items.map((it) => (
+              {order.items.map((it: any) => (
                 <tr key={it.id} className="border-t border-zinc-100 dark:border-zinc-900">
                   <td className="py-3 pr-4 font-medium">{it.description}</td>
                   <td className="py-3 pr-4">{it.quantity.toString()}</td>
