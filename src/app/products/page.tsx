@@ -2,6 +2,8 @@ import { prisma } from "@/server/db";
 import { createProduct, importProductsCsv } from "./actions";
 import { BeakerIcon, PlusIcon, MagnifyingGlassIcon, ChartBarIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = 'force-dynamic';
+
 type ProductsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

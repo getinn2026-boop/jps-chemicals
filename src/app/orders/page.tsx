@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/server/db";
 
+export const dynamic = 'force-dynamic';
+
 type OrdersPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

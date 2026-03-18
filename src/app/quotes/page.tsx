@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/server/db";
 import { BeakerIcon, DocumentTextIcon, PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = 'force-dynamic';
+
 type QuotesPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

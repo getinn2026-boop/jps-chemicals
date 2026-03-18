@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import AddClientModal from "./AddClientModal";
 import { UserIcon, BuildingOfficeIcon, EnvelopeIcon, PhoneIcon, PlusIcon, MagnifyingGlassIcon, BeakerIcon, ChartBarIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = 'force-dynamic';
+
 interface Client {
   id: string;
   name: string;

@@ -1,6 +1,8 @@
 import { prisma } from "@/server/db";
 import { BeakerIcon, UserIcon, TruckIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = 'force-dynamic';
+
 export default async function TestDataPage() {
   try {
     const [suppliers, clients, products] = await Promise.all([

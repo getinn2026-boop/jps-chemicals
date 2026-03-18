@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/server/db";
 import { UsersIcon, BeakerIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const threeDaysAgo = new Date();
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
