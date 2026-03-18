@@ -119,7 +119,7 @@ export async function setQuoteStatus(formData: FormData) {
       activities: {
         create: {
           type: "QUOTE_STATUS_CHANGED",
-          message: `Quote status changed to ${status} by admin ${user.name}`,
+          message: `Quote status changed to ${status} by admin ${user?.name || 'System'}`,
         },
       },
     },
@@ -157,7 +157,7 @@ export async function createOrderFromQuote(formData: FormData) {
       tax: quote.tax,
       total: quote.total,
       items: {
-        create: quote.items.map((i) => ({
+        create: quote.items.map((i: any) => ({
           description: i.description,
           quantity: i.quantity,
           unit: i.unit,

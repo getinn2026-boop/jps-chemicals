@@ -104,7 +104,7 @@ export default async function QuotesPage({ searchParams }: QuotesPageProps) {
                     </td>
                   </tr>
                 ) : (
-                  quotes.map((qt) => (
+                  quotes.map((qt: any) => (
                     <tr key={qt.id} className="hover:bg-slate-50">
                       <td className="py-4 pr-6">
                         <Link href={`/quotes/${qt.id}`} className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

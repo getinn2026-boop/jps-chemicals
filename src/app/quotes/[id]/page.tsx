@@ -115,7 +115,7 @@ export default async function QuotePage({ params }: QuotePageProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {quote.items.map((it) => (
+              {quote.items.map((it: any) => (
                 <tr key={it.id} className="hover:bg-slate-50">
                   <td className="py-4 pr-4 font-medium text-slate-900">{it.description}</td>
                   <td className="py-4 pr-4 text-slate-700">{it.quantity.toString()}</td>

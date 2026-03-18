@@ -156,7 +156,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                         </td>
                       </tr>
                     ) : (
-                      products.map((p) => (
+                      products.map((p: any) => (
                         <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
                           <td className="py-5 pr-6">
                             <div className="text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">{p.name}</div>

@@ -62,7 +62,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                   </td>
                 </tr>
               ) : (
-                orders.map((o) => (
+                orders.map((o: any) => (
                   <tr key={o.id} className="border-t border-zinc-100 dark:border-zinc-900">
                     <td className="py-3 pr-4">
                       <Link href={`/orders/${o.id}`} className="font-medium hover:underline">

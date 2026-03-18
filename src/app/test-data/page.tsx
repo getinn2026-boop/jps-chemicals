@@ -34,7 +34,7 @@ export default async function TestDataPage() {
               <h2 className="text-lg font-semibold text-slate-900">Suppliers ({suppliers.length})</h2>
             </div>
             <div className="space-y-2">
-              {suppliers.map((supplier) => (
+              {suppliers.map((supplier: any) => (
                 <div key={supplier.id} className="p-3 bg-slate-50 rounded-lg">
                   <div className="font-medium text-slate-900">{supplier.name}</div>
                   <div className="text-sm text-slate-600">{supplier.contactPerson}</div>
@@ -74,12 +74,12 @@ export default async function TestDataPage() {
               <h2 className="text-lg font-semibold text-slate-900">Products ({products.length})</h2>
             </div>
             <div className="space-y-2">
-              {products.map((product) => (
+              {products.map((product: any) => (
                 <div key={product.id} className="p-3 bg-slate-50 rounded-lg">
                   <div className="font-medium text-slate-900">{product.name}</div>
                   <div className="text-sm text-slate-600">{product.sku}</div>
                   <div className="text-sm text-slate-500">
-                    ₹{product.defaultPrice}/{product.unit}
+                    ₹{product.defaultPrice?.toString()}/{product.unit}
                     {product.supplier && (
                       <span className="ml-2 text-blue-600">from {product.supplier.name}</span>
                     )}
@@ -101,13 +101,13 @@ export default async function TestDataPage() {
         </div>
       </div>
     );
-  } catch (error) {
+  } catch (error: any) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="text-red-800 font-medium">❌ Data Access Error</div>
-          <div className="text-red-700 text-sm mt-1">{error.message}</div>
-          <div className="text-red-600 text-xs mt-2">{error.stack}</div>
+          <div className="text-red-700 text-sm mt-1">{error.message || 'Unknown error'}</div>
+          <div className="text-red-600 text-xs mt-2">{error.stack || ''}</div>
         </div>
       </div>
     );

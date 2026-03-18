@@ -92,7 +92,7 @@ export default async function ClientPage({ params }: ClientPageProps) {
                       </td>
                     </tr>
                   ) : (
-                    client.quotes.map((q) => (
+                    client.quotes.map((q: any) => (
                       <tr key={q.id} className="border-t border-zinc-100 dark:border-zinc-900">
                         <td className="py-3 pr-4">
                           <Link href={`/quotes/${q.id}`} className="font-medium hover:underline">
@@ -133,7 +133,7 @@ export default async function ClientPage({ params }: ClientPageProps) {
                       </td>
                     </tr>
                   ) : (
-                    client.orders.map((o) => (
+                    client.orders.map((o: any) => (
                       <tr key={o.id} className="border-t border-zinc-100 dark:border-zinc-900">
                         <td className="py-3 pr-4">
                           <Link href={`/orders/${o.id}`} className="font-medium hover:underline">
@@ -157,7 +157,7 @@ export default async function ClientPage({ params }: ClientPageProps) {
             {client.activities.length === 0 ? (
               <div className="text-sm text-zinc-600 dark:text-zinc-400">No activity yet.</div>
             ) : (
-              client.activities.map((a) => (
+              client.activities.map((a: any) => (
                 <div
                   key={a.id}
                   className="rounded-lg border border-zinc-200 p-3 text-sm dark:border-zinc-800"

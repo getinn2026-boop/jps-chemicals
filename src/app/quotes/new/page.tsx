@@ -7,5 +7,5 @@ export default async function NewQuotePage() {
     take: 200,
   });
 
-  return <NewQuotePageClient clients={clients} />;
+  return <NewQuotePageClient clients={clients as any} />;
 }
