@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server';
-import sqlite3 from 'better-sqlite3';
-import path from 'path';
+import { prisma } from '@/server/db';
 
 export async function GET() {
   try {
-    const dbPath = path.join(process.cwd(), 'prisma', 'dev.db');
-    const db = sqlite3(dbPath);
-    
-    // Get all data
-    const suppliers = db.prepare('SELECT * FROM "Supplier"').all();
-    const clients = db.prepare('SELECT * FROM "Client"').all();
-    const products = db.prepare('SELECT * FROM "Product"').all();
-    
-    db.close();
+    // Get all data using Prisma
+    const suppliers = await prisma.supplier.findMany();
+    const clients = await prisma.client.findMany();
+    const products = await prisma.product.findMany();
     
     return NextResponse.json({
       success: true,
@@ -27,10 +21,10 @@ export async function GET() {
         }
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json({
       success: false,
-      error: error.message
+      error: error.message || 'An error occurred fetching test data'
     }, { status: 500 });
   }
 }

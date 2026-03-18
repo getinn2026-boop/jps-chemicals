@@ -1,0 +1,7 @@
+# Ignore these old test scripts during Vercel builds
+scripts/
+*.js
+*.mjs
+!next.config.js
+!postcss.config.js
+!tailwind.config.js
