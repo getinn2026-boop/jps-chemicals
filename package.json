@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "rm -rf src/generated/prisma && prisma generate"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
