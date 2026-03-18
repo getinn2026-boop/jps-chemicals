@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/server/db";
-import PrintButton from "./PrintButton";
+import { PrintButton } from "./PrintButton";
 
 export const dynamic = 'force-dynamic';
 
