@@ -18,9 +18,5 @@
       }
     }
   ],
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "APP_BASIC_AUTH_USER": "@app_basic_auth_user",
-    "APP_BASIC_AUTH_PASS": "@app_basic_auth_pass"
-  }
+  "env": {}
 }
