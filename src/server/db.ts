@@ -2,7 +2,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
+export const prisma = globalForPrisma.prisma ?? new (PrismaClient as any)({
   datasources: {
     db: {
       url: process.env.DATABASE_URL,
