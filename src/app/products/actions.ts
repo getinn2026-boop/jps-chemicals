@@ -43,59 +43,65 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function importProductsCsv(formData: FormData) {
-  const file = formData.get("file");
-  if (!(file instanceof File)) {
-    return;
-  }
-
-  const text = await file.text();
-
-  const records = parse(text, {
-    columns: true,
-    skip_empty_lines: true,
-    bom: true,
-    relax_column_count: true,
-    trim: true,
-  }) as Array<Record<string, string>>;
-
-  const limited = records.slice(0, 5000);
-
-  for (const row of limited) {
-    const name = (row.name ?? row.Name ?? "").toString().trim();
-    if (!name) {
-      continue;
+  try {
+    const file = formData.get("file");
+    if (!(file instanceof File)) {
+      throw new Error("No file provided");
     }
 
-    const supplierName = (row.supplier ?? row.Supplier ?? "").toString().trim();
-    const supplierId = supplierName
-      ? (
-          await prisma.supplier.upsert({
-            where: { name: supplierName },
-            create: { name: supplierName },
-            update: {},
-            select: { id: true },
-          })
-        ).id
-      : null;
+    const text = await file.text();
 
-    const listPrice = parseCsvNumber(row.listPrice ?? row.defaultPrice ?? row.price ?? row.Price);
+    const records = parse(text, {
+      columns: true,
+      skip_empty_lines: true,
+      bom: true,
+      relax_column_count: true,
+      trim: true,
+    }) as Array<Record<string, string>>;
 
-    await prisma.masterProduct.create({
-      data: {
-        name,
-        sku: (row.sku ?? row.SKU ?? "").toString().trim() || null,
-        casNumber: (row.casNumber ?? row.cas ?? row.CAS ?? "").toString().trim() || null,
-        unit: (row.unit ?? row.Unit ?? "").toString().trim() || null,
-        hsnCode: (row.hsnCode ?? row.HSN ?? "").toString().trim() || null,
-        grade: (row.grade ?? row.Grade ?? "").toString().trim() || null,
-        listPrice,
-        currency: ((row.currency ?? row.Currency ?? "INR") as string).toUpperCase(),
-        supplierId,
-      },
-    });
+    const limited = records.slice(0, 5000);
+
+    for (const row of limited) {
+      // Very flexible column matching for Rankem PDF format or standard format
+      const name = (row.name ?? row.Name ?? row['Product description'] ?? row['Product Name'] ?? "").toString().trim();
+      if (!name) continue;
+
+      const supplierName = (row.supplier ?? row.Supplier ?? row.supplierName ?? "RANKEM").toString().trim();
+      const supplierId = supplierName
+        ? (
+            await prisma.supplier.upsert({
+              where: { name: supplierName },
+              create: { name: supplierName },
+              update: {},
+              select: { id: true },
+            })
+          ).id
+        : null;
+
+      // Match List price, listPrice, Price, etc.
+      const rawPrice = row.listPrice ?? row.ListPrice ?? row['List price'] ?? row.defaultPrice ?? row.price ?? row.Price;
+      const listPrice = parseCsvNumber(rawPrice);
+
+      await prisma.masterProduct.create({
+        data: {
+          name,
+          sku: (row.sku ?? row.SKU ?? row['Product code'] ?? "").toString().trim() || null,
+          casNumber: (row.casNumber ?? row.cas ?? row.CAS ?? row['CAS No.'] ?? row['CAS No'] ?? "").toString().trim() || null,
+          unit: (row.unit ?? row.Unit ?? row['Quantity'] ?? "").toString().trim() || null,
+          hsnCode: (row.hsnCode ?? row.HSN ?? row['HSN code'] ?? "").toString().trim() || null,
+          grade: (row.grade ?? row.Grade ?? "").toString().trim() || null,
+          listPrice,
+          currency: ((row.currency ?? row.Currency ?? "INR") as string).toUpperCase(),
+          supplierId,
+        },
+      });
+    }
+
+    revalidatePath("/products");
+  } catch (error) {
+    console.error("CSV Import Error:", error);
+    throw new Error("Failed to import CSV. Please check the file format.");
   }
-
-  revalidatePath("/products");
 }
 
 export async function updateProduct(id: string, formData: FormData) {
