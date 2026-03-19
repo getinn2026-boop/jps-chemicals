@@ -79,16 +79,18 @@ export async function importProductsCsv(formData: FormData) {
         ).id
       : null;
 
-    const defaultPrice = parseCsvNumber(row.defaultPrice ?? row.price ?? row.Price);
+    const listPrice = parseCsvNumber(row.listPrice ?? row.defaultPrice ?? row.price ?? row.Price);
 
-    await prisma.product.create({
+    await prisma.masterProduct.create({
       data: {
         name,
         sku: (row.sku ?? row.SKU ?? "").toString().trim() || null,
         casNumber: (row.casNumber ?? row.cas ?? row.CAS ?? "").toString().trim() || null,
         unit: (row.unit ?? row.Unit ?? "").toString().trim() || null,
+        hsnCode: (row.hsnCode ?? row.HSN ?? "").toString().trim() || null,
+        grade: (row.grade ?? row.Grade ?? "").toString().trim() || null,
+        listPrice,
         currency: ((row.currency ?? row.Currency ?? "INR") as string).toUpperCase(),
-        defaultPrice: defaultPrice === null ? null : defaultPrice.toString(),
         supplierId,
       },
     });
