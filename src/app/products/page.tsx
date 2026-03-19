@@ -13,32 +13,54 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const qParam = params.q;
   const q = typeof qParam === "string" ? qParam.trim() : "";
 
-  const products = await prisma.product.findMany({
-    where: q
-      ? {
-          OR: [
-            { name: { contains: q, mode: "insensitive" } },
-            { sku: { contains: q, mode: "insensitive" } },
-            { casNumber: { contains: q, mode: "insensitive" } },
-          ],
-        }
-      : undefined,
-    include: { supplier: true },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
+  let products: any[] = [];
+  let totalProducts = 0;
+  let productsWithPrices = 0;
+  let recentProducts = 0;
+  let dbError = false;
 
-  // Calculate product statistics
-  const totalProducts = await prisma.product.count();
-  const productsWithPrices = await prisma.product.count({
-    where: { defaultPrice: { not: null } }
-  });
-  const recentProducts = await prisma.product.count({
-    where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }
-  });
+  try {
+    products = await prisma.product.findMany({
+      where: q
+        ? {
+            OR: [
+              { name: { contains: q, mode: "insensitive" } },
+              { sku: { contains: q, mode: "insensitive" } },
+              { casNumber: { contains: q, mode: "insensitive" } },
+            ],
+          }
+        : undefined,
+      include: { supplier: true },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    });
+
+    // Calculate product statistics
+    totalProducts = await prisma.product.count();
+    productsWithPrices = await prisma.product.count({
+      where: { defaultPrice: { not: null } }
+    });
+    recentProducts = await prisma.product.count({
+      where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }
+    });
+  } catch (error) {
+    console.error("Database connection failed in products page:", error);
+    dbError = true;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+      {dbError && (
+        <div className="max-w-7xl mx-auto px-8 pt-8">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <h2 className="text-red-800 font-medium">⚠️ Database Connection Error</h2>
+            <p className="text-red-700 text-sm mt-1">
+              Unable to connect to the database. Make sure you have configured a valid PostgreSQL database and <code className="bg-red-100 px-1 rounded">DATABASE_URL</code> on Vercel.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <div className="px-8 pt-16 pb-12">
         <div className="max-w-7xl mx-auto">

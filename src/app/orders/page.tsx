@@ -12,23 +12,40 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   const qParam = params.q;
   const q = typeof qParam === "string" ? qParam.trim() : "";
 
-  const orders = await prisma.order.findMany({
-    where: q
-      ? {
-          OR: [
-            { orderNumber: { contains: q, mode: "insensitive" } },
-            { client: { name: { contains: q, mode: "insensitive" } } },
-            { client: { companyName: { contains: q, mode: "insensitive" } } },
-          ],
-        }
-      : undefined,
-    include: { client: true },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
+  let orders: any[] = [];
+  let dbError = false;
+
+  try {
+    orders = await prisma.order.findMany({
+      where: q
+        ? {
+            OR: [
+              { orderNumber: { contains: q, mode: "insensitive" } },
+              { client: { name: { contains: q, mode: "insensitive" } } },
+              { client: { companyName: { contains: q, mode: "insensitive" } } },
+            ],
+          }
+        : undefined,
+      include: { client: true },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    });
+  } catch (error) {
+    console.error("Database connection failed in orders page:", error);
+    dbError = true;
+  }
 
   return (
     <div className="space-y-6">
+      {dbError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <h2 className="text-red-800 font-medium">⚠️ Database Connection Error</h2>
+          <p className="text-red-700 text-sm mt-1">
+            Unable to connect to the database. Make sure you have configured a valid PostgreSQL database and <code className="bg-red-100 px-1 rounded">DATABASE_URL</code> on Vercel.
+          </p>
+        </div>
+      )}
+
       <section className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-base font-semibold">Orders</h1>

@@ -18,26 +18,43 @@ export default async function QuotesPage({ searchParams }: QuotesPageProps) {
   const statusOptions = ["", "DRAFT", "SENT", "ACCEPTED", "REJECTED", "EXPIRED"];
   const status = statusOptions.includes(statusInput) ? statusInput : "";
 
-  const quotes = await prisma.quote.findMany({
-    where: {
-      ...(q
-        ? {
-            OR: [
-              { quoteNumber: { contains: q, mode: "insensitive" } },
-              { client: { name: { contains: q, mode: "insensitive" } } },
-              { client: { companyName: { contains: q, mode: "insensitive" } } },
-            ],
-          }
-        : {}),
-      ...(status ? { status: status as never } : {}),
-    },
-    include: { client: true },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
+  let quotes: any[] = [];
+  let dbError = false;
+
+  try {
+    quotes = await prisma.quote.findMany({
+      where: {
+        ...(q
+          ? {
+              OR: [
+                { quoteNumber: { contains: q, mode: "insensitive" } },
+                { client: { name: { contains: q, mode: "insensitive" } } },
+                { client: { companyName: { contains: q, mode: "insensitive" } } },
+              ],
+            }
+          : {}),
+        ...(status ? { status: status as never } : {}),
+      },
+      include: { client: true },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    });
+  } catch (error) {
+    console.error("Database connection failed in quotes page:", error);
+    dbError = true;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {dbError && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <h2 className="text-red-800 font-medium">⚠️ Database Connection Error</h2>
+          <p className="text-red-700 text-sm mt-1">
+            Unable to connect to the database. Make sure you have configured a valid PostgreSQL database and <code className="bg-red-100 px-1 rounded">DATABASE_URL</code> on Vercel.
+          </p>
+        </div>
+      )}
+
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <DocumentTextIcon className="h-8 w-8 text-blue-600" />

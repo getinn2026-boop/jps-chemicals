@@ -8,23 +8,48 @@ export default async function Home() {
   const threeDaysAgo = new Date();
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
-  const [clientCount, productCount, quoteCount, followUps] = await Promise.all([
-    prisma.client.count(),
-    prisma.product.count(),
-    prisma.quote.count(),
-    prisma.quote.findMany({
-      where: {
-        status: "SENT",
-        createdAt: { lt: threeDaysAgo },
-      },
-      orderBy: { createdAt: "asc" },
-      take: 10,
-      include: { client: true },
-    }),
-  ]);
+  let clientCount = 0;
+  let productCount = 0;
+  let quoteCount = 0;
+  let followUps: any[] = [];
+  let dbError = false;
+
+  try {
+    const results = await Promise.all([
+      prisma.client.count(),
+      prisma.product.count(),
+      prisma.quote.count(),
+      prisma.quote.findMany({
+        where: {
+          status: "SENT",
+          createdAt: { lt: threeDaysAgo },
+        },
+        orderBy: { createdAt: "asc" },
+        take: 10,
+        include: { client: true },
+      }),
+    ]);
+
+    clientCount = results[0];
+    productCount = results[1];
+    quoteCount = results[2];
+    followUps = results[3];
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    dbError = true;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      {dbError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <h2 className="text-red-800 font-medium">⚠️ Database Connection Error</h2>
+          <p className="text-red-700 text-sm mt-1">
+            Unable to connect to the database. If you are on Vercel, make sure you have set up a PostgreSQL database and added the <code className="bg-red-100 px-1 rounded">DATABASE_URL</code> environment variable in your Vercel project settings.
+          </p>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="text-center py-12 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl text-white">
         <h1 className="text-4xl font-bold mb-4">Chemical Supply Management</h1>
