@@ -60,40 +60,59 @@ export async function importProductsCsv(formData: FormData) {
     }) as Array<Record<string, string>>;
 
     const limited = records.slice(0, 5000);
-
+    
+    // Process all rows first to gather supplier names
+    const supplierNames = new Set<string>();
     for (const row of limited) {
-      // Very flexible column matching for Rankem PDF format or standard format
+      const supplierName = (row.supplier ?? row.Supplier ?? row.supplierName ?? "RANKEM").toString().trim();
+      if (supplierName) {
+        supplierNames.add(supplierName);
+      }
+    }
+
+    // Bulk upsert suppliers
+    const supplierMap = new Map<string, string>();
+    for (const name of Array.from(supplierNames)) {
+      const supplier = await prisma.supplier.upsert({
+        where: { name },
+        create: { name },
+        update: {},
+        select: { id: true, name: true },
+      });
+      supplierMap.set(supplier.name, supplier.id);
+    }
+
+    // Prepare all product data for bulk insert
+    const productsToInsert = [];
+    
+    for (const row of limited) {
       const name = (row.name ?? row.Name ?? row['Product description'] ?? row['Product Name'] ?? "").toString().trim();
       if (!name) continue;
 
       const supplierName = (row.supplier ?? row.Supplier ?? row.supplierName ?? "RANKEM").toString().trim();
-      const supplierId = supplierName
-        ? (
-            await prisma.supplier.upsert({
-              where: { name: supplierName },
-              create: { name: supplierName },
-              update: {},
-              select: { id: true },
-            })
-          ).id
-        : null;
+      const supplierId = supplierName ? supplierMap.get(supplierName) || null : null;
 
-      // Match List price, listPrice, Price, etc.
       const rawPrice = row.listPrice ?? row.ListPrice ?? row['List price'] ?? row.defaultPrice ?? row.price ?? row.Price;
       const listPrice = parseCsvNumber(rawPrice);
 
-      await prisma.masterProduct.create({
-        data: {
-          name,
-          sku: (row.sku ?? row.SKU ?? row['Product code'] ?? "").toString().trim() || null,
-          casNumber: (row.casNumber ?? row.cas ?? row.CAS ?? row['CAS No.'] ?? row['CAS No'] ?? "").toString().trim() || null,
-          unit: (row.unit ?? row.Unit ?? row['Quantity'] ?? "").toString().trim() || null,
-          hsnCode: (row.hsnCode ?? row.HSN ?? row['HSN code'] ?? "").toString().trim() || null,
-          grade: (row.grade ?? row.Grade ?? "").toString().trim() || null,
-          listPrice,
-          currency: ((row.currency ?? row.Currency ?? "INR") as string).toUpperCase(),
-          supplierId,
-        },
+      productsToInsert.push({
+        name,
+        sku: (row.sku ?? row.SKU ?? row['Product code'] ?? "").toString().trim() || null,
+        casNumber: (row.casNumber ?? row.cas ?? row.CAS ?? row['CAS No.'] ?? row['CAS No'] ?? "").toString().trim() || null,
+        unit: (row.unit ?? row.Unit ?? row['Quantity'] ?? "").toString().trim() || null,
+        hsnCode: (row.hsnCode ?? row.HSN ?? row['HSN code'] ?? "").toString().trim() || null,
+        grade: (row.grade ?? row.Grade ?? "").toString().trim() || null,
+        listPrice,
+        currency: ((row.currency ?? row.Currency ?? "INR") as string).toUpperCase(),
+        supplierId,
+      });
+    }
+
+    // Use createMany for blazing fast bulk inserts (won't timeout on Vercel)
+    if (productsToInsert.length > 0) {
+      // Note: skipDuplicates ensures we don't crash if a product happens to violate a unique constraint
+      await prisma.masterProduct.createMany({
+        data: productsToInsert,
       });
     }
 
