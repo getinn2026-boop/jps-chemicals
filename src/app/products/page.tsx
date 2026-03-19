@@ -279,9 +279,28 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-base font-medium text-slate-700 mb-2">Default Price</label>
+                <label className="block text-base font-medium text-slate-700 mb-2">HSN Code</label>
                 <input
-                  name="defaultPrice"
+                  name="hsnCode"
+                  placeholder="e.g., 29141100"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-base shadow-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-base font-medium text-slate-700 mb-2">Grade</label>
+                <input
+                  name="grade"
+                  placeholder="e.g., AR, LR, HPLC"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-base shadow-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-base font-medium text-slate-700 mb-2">List Price</label>
+                <input
+                  name="listPrice"
                   inputMode="decimal"
                   placeholder="0.00"
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-base shadow-sm"
@@ -328,7 +347,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-base shadow-sm"
               />
               <p className="text-sm text-slate-500 mt-2">
-                CSV format: name, sku, casNumber, unit, defaultPrice, currency, supplierName
+                CSV format: name, sku, casNumber, unit, hsnCode, grade, listPrice, currency, supplierName
               </p>
             </div>
             <button className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl text-base">
