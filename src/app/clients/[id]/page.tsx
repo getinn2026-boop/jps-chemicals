@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/server/db-simple";
+import ClientCatalog from "./ClientCatalog";
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,12 @@ export default async function ClientPage({ params }: ClientPageProps) {
   const client = await prisma.client.findUnique({
     where: { id },
     include: {
+      clientProducts: {
+        include: {
+          masterProduct: true,
+        },
+        orderBy: { updatedAt: "desc" },
+      },
       quotes: { orderBy: { createdAt: "desc" }, take: 20 },
       orders: { orderBy: { createdAt: "desc" }, take: 20 },
       activities: { orderBy: { createdAt: "desc" }, take: 50 },
@@ -68,7 +75,10 @@ export default async function ClientPage({ params }: ClientPageProps) {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* Client Catalog Section */}
+      <ClientCatalog client={client} clientProducts={client.clientProducts} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-6">
         <div className="space-y-6">
           <section className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
             <div className="flex items-center justify-between gap-3">
