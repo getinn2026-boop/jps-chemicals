@@ -48,7 +48,7 @@ export async function createProduct(formData: FormData) {
 
 export async function importProductsCsv(formData: FormData) {
   try {
-    const file = formData.get("file");
+    const file = formData.get("csvFile") || formData.get("file");
     if (!(file instanceof File)) {
       throw new Error("No file provided");
     }
