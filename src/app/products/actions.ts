@@ -12,8 +12,12 @@ function normalizeString(value: FormDataEntryValue | null) {
 }
 
 function parseCsvNumber(value: unknown) {
-  const n = Number(String(value ?? "").trim());
-  return Number.isFinite(n) ? n : null;
+  if (!value) return null;
+  // Remove all non-numeric characters except dots and minus signs (handles commas, Rs, $, etc)
+  const cleanString = String(value).replace(/[^0-9.-]+/g, "");
+  if (!cleanString) return null;
+  const n = Number(cleanString);
+  return Number.isFinite(n) ? cleanString : null; // Return as string for Prisma.Decimal
 }
 
 export async function createProduct(formData: FormData) {
@@ -93,7 +97,7 @@ export async function importProductsCsv(formData: FormData) {
       const supplierId = supplierName ? supplierMap.get(supplierName) || null : null;
 
       const rawPrice = row.listPrice ?? row.ListPrice ?? row['List price'] ?? row.defaultPrice ?? row.price ?? row.Price;
-      const listPrice = parseCsvNumber(rawPrice);
+      const cleanPrice = parseCsvNumber(rawPrice);
 
       productsToInsert.push({
         name,
@@ -102,7 +106,7 @@ export async function importProductsCsv(formData: FormData) {
         unit: (row.unit ?? row.Unit ?? row['Quantity'] ?? "").toString().trim() || null,
         hsnCode: (row.hsnCode ?? row.HSN ?? row['HSN code'] ?? "").toString().trim() || null,
         grade: (row.grade ?? row.Grade ?? "").toString().trim() || null,
-        listPrice,
+        listPrice: cleanPrice ? new Prisma.Decimal(cleanPrice) : null,
         currency: ((row.currency ?? row.Currency ?? "INR") as string).toUpperCase(),
         supplierId,
       });
@@ -113,6 +117,7 @@ export async function importProductsCsv(formData: FormData) {
       // Note: skipDuplicates ensures we don't crash if a product happens to violate a unique constraint
       await prisma.masterProduct.createMany({
         data: productsToInsert,
+        skipDuplicates: true,
       });
     }
 
