@@ -31,15 +31,14 @@ export async function createProduct(formData: FormData) {
       supplierId: (formData.get("supplierId") as string) || null,
     };
 
-    const product = await prisma.masterProduct.create({
+    await prisma.masterProduct.create({
       data,
     });
 
     revalidatePath("/products");
-    return { success: true, product };
   } catch (error) {
     console.error("Failed to create product:", error);
-    return { success: false, error: "Failed to create product" };
+    throw new Error("Failed to create product");
   }
 }
 
