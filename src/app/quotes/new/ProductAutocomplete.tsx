@@ -8,19 +8,18 @@ interface Product {
   name: string;
   sku: string;
   unit: string;
-  defaultPrice: number;
-  supplier: {
-    name: string;
-  };
+  price: number; // changed from defaultPrice to match API
+  currency: string;
 }
 
 interface ProductAutocompleteProps {
   name: string;
   placeholder?: string;
+  clientId?: string;
   onProductSelect: (product: Product) => void;
 }
 
-export default function ProductAutocomplete({ name, placeholder, onProductSelect }: ProductAutocompleteProps) {
+export default function ProductAutocomplete({ name, placeholder, clientId, onProductSelect }: ProductAutocompleteProps) {
   const [query, setQuery] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -48,9 +47,17 @@ export default function ProductAutocomplete({ name, placeholder, onProductSelect
     const timeoutId = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/products/suggestions?q=${encodeURIComponent(query)}`);
+        let url = `/api/products/suggestions?q=${encodeURIComponent(query)}`;
+        if (clientId) {
+          url = `/api/products?clientId=${clientId}&q=${encodeURIComponent(query)}`;
+        }
+        
+        const response = await fetch(url);
         const data = await response.json();
-        setProducts(data.products || []);
+        
+        // Handle both API response formats
+        const results = data.products || data || [];
+        setProducts(results);
         setIsOpen(true);
       } catch (error) {
         console.error('Failed to fetch products:', error);
@@ -106,10 +113,10 @@ export default function ProductAutocomplete({ name, placeholder, onProductSelect
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium text-slate-900">{product.name}</div>
-                      <div className="text-sm text-slate-600">{product.sku} • {product.supplier.name}</div>
+                      <div className="text-sm text-slate-600">{product.sku}</div>
                     </div>
                     <div className="text-sm text-slate-500">
-                      ₹{product.defaultPrice}/{product.unit}
+                      {product.currency} {product.price}/{product.unit}
                     </div>
                   </div>
                 </button>

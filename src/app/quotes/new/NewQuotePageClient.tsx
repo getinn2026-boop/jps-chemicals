@@ -18,10 +18,8 @@ interface Product {
   name: string;
   sku: string;
   unit: string;
-  defaultPrice: number;
-  supplier: {
-    name: string;
-  };
+  price: number;
+  currency: string;
 }
 
 interface QuoteItem {
@@ -92,8 +90,8 @@ export default function NewQuotePageClient({ clients }: NewQuotePageProps) {
           ...item,
           description: product.name,
           unit: product.unit || "",
-          unitPrice: product.defaultPrice || 0,
-          lineTotal: item.quantity * (product.defaultPrice || 0),
+          unitPrice: product.price || 0,
+          lineTotal: item.quantity * (product.price || 0),
           product: product
         };
       }
@@ -247,6 +245,7 @@ export default function NewQuotePageClient({ clients }: NewQuotePageProps) {
                         <ProductAutocomplete
                           name={`itemDescription_${index}`}
                           placeholder={index === 0 ? "Start typing chemical name..." : "Search chemical..."}
+                          clientId={selectedClient}
                           onProductSelect={(product) => handleProductSelect(item.id, product)}
                         />
                         <input
