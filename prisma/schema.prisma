@@ -37,26 +37,27 @@ model Supplier {
   email     String?
   phone     String?
   address   String?
-  products  Product[]
+  products  MasterProduct[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Product {
-  id           String    @id @default(cuid())
-  name         String
-  sku          String?
-  casNumber    String?
-  unit         String?
-  currency     String    @default("INR")
-  defaultPrice Decimal?
-  isActive     Boolean   @default(true)
-  supplierId   String?
-  supplier     Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  quoteItems   QuoteItem[]
-  orderItems   OrderItem[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+model MasterProduct {
+  id             String    @id @default(cuid())
+  name           String
+  sku            String?
+  casNumber      String?
+  grade          String?   // e.g., AR, LR, HPLC
+  hsnCode        String?   // For tax purposes
+  unit           String?   // e.g., 500 ml, 2.5 L
+  currency       String    @default("INR")
+  listPrice      Decimal?  // Base list price from supplier
+  isActive       Boolean   @default(true)
+  supplierId     String?
+  supplier       Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  clientProducts ClientProduct[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([name])
   @@index([sku])
@@ -64,19 +65,38 @@ model Product {
   @@index([supplierId])
 }
 
+model ClientProduct {
+  id              String        @id @default(cuid())
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  masterProductId String
+  masterProduct   MasterProduct @relation(fields: [masterProductId], references: [id], onDelete: Cascade)
+  negotiatedPrice Decimal       // The specific price for this client
+  isActive        Boolean       @default(true)
+  quoteItems      QuoteItem[]
+  orderItems      OrderItem[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([clientId, masterProductId]) // A client can only have one active pricing rule per master product
+  @@index([clientId])
+  @@index([masterProductId])
+}
+
 model Client {
-  id           String     @id @default(cuid())
-  name         String
-  companyName  String?
-  email        String?
-  phone        String?
-  address      String?
-  gstin        String?
-  quotes       Quote[]
-  orders       Order[]
-  activities   Activity[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id             String          @id @default(cuid())
+  name           String
+  companyName    String?
+  email          String?
+  phone          String?
+  address        String?
+  gstin          String?
+  clientProducts ClientProduct[]
+  quotes         Quote[]
+  orders         Order[]
+  activities     Activity[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@index([name])
   @@index([companyName])
@@ -107,19 +127,19 @@ model Quote {
 }
 
 model QuoteItem {
-  id          String   @id @default(cuid())
-  quoteId     String
-  quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
-  productId   String?
-  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-  description String
-  quantity    Decimal
-  unit        String?
-  unitPrice   Decimal
-  lineTotal   Decimal
+  id              String         @id @default(cuid())
+  quoteId         String
+  quote           Quote          @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  clientProductId String?
+  clientProduct   ClientProduct? @relation(fields: [clientProductId], references: [id], onDelete: SetNull)
+  description     String
+  quantity        Decimal
+  unit            String?
+  unitPrice       Decimal
+  lineTotal       Decimal
 
   @@index([quoteId])
-  @@index([productId])
+  @@index([clientProductId])
 }
 
 model Order {
@@ -144,19 +164,19 @@ model Order {
 }
 
 model OrderItem {
-  id          String   @id @default(cuid())
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId   String?
-  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-  description String
-  quantity    Decimal
-  unit        String?
-  unitPrice   Decimal
-  lineTotal   Decimal
+  id              String         @id @default(cuid())
+  orderId         String
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  clientProductId String?
+  clientProduct   ClientProduct? @relation(fields: [clientProductId], references: [id], onDelete: SetNull)
+  description     String
+  quantity        Decimal
+  unit            String?
+  unitPrice       Decimal
+  lineTotal       Decimal
 
   @@index([orderId])
-  @@index([productId])
+  @@index([clientProductId])
 }
 
 model Activity {

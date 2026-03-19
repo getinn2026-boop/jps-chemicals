@@ -20,7 +20,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   let dbError = false;
 
   try {
-    products = await prisma.product.findMany({
+    products = await prisma.masterProduct.findMany({
       where: q
         ? {
             OR: [
@@ -36,11 +36,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     });
 
     // Calculate product statistics
-    totalProducts = await prisma.product.count();
-    productsWithPrices = await prisma.product.count({
-      where: { defaultPrice: { not: null } }
+    totalProducts = await prisma.masterProduct.count();
+    productsWithPrices = await prisma.masterProduct.count({
+      where: { listPrice: { not: null } }
     });
-    recentProducts = await prisma.product.count({
+    recentProducts = await prisma.masterProduct.count({
       where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }
     });
   } catch (error) {
@@ -161,7 +161,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                       <th className="py-5 pr-6 font-semibold text-base">SKU</th>
                       <th className="py-5 pr-6 font-semibold text-base">CAS Number</th>
                       <th className="py-5 pr-6 font-semibold text-base">Supplier</th>
-                      <th className="py-5 pr-6 font-semibold text-base">Price</th>
+                      <th className="py-5 pr-6 font-semibold text-base">HSN Code</th>
+                      <th className="py-5 pr-6 font-semibold text-base">Grade</th>
+                      <th className="py-5 pr-6 font-semibold text-base">List Price</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -195,8 +197,14 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                               {p.supplier?.name ?? "—"}
                             </span>
                           </td>
+                          <td className="py-5 pr-6 font-mono text-sm text-slate-500">
+                            {p.hsnCode || "—"}
+                          </td>
+                          <td className="py-5 pr-6 text-sm text-slate-500">
+                            {p.grade || "—"}
+                          </td>
                           <td className="py-5 pr-6 font-semibold text-lg text-slate-900">
-                            {p.defaultPrice ? `${p.currency} ${p.defaultPrice}` : "—"}
+                            {p.listPrice ? `${p.currency} ${p.listPrice}` : "—"}
                           </td>
                         </tr>
                       ))

@@ -17,7 +17,7 @@ export default async function Home() {
   try {
     const results = await Promise.all([
       prisma.client.count(),
-      prisma.product.count(),
+      prisma.masterProduct.count(),
       prisma.quote.count(),
       prisma.quote.findMany({
         where: {

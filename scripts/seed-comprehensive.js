@@ -1,11 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
-const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
 
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || "file:./dev.db",
-});
-
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 const sampleClients = [
   {
@@ -14,8 +9,7 @@ const sampleClients = [
     phone: '+91-9876543210',
     companyName: 'PharmaTech Industries Ltd.',
     address: 'Plot No. 45, Industrial Estate, Vapi, Gujarat 396195',
-    gstNumber: '24AABCU9603R1ZX',
-    notes: 'Regular customer for pharmaceutical intermediates. 30-day payment terms.'
+    gstin: '24AABCU9603R1ZX'
   },
   {
     name: 'Priya Sharma',
@@ -23,8 +17,7 @@ const sampleClients = [
     phone: '+91-9823456789',
     companyName: 'Chemical Corporation of India',
     address: 'Sector 18, Udyog Vihar, Gurugram, Haryana 122015',
-    gstNumber: '06AAACC1234F1Z5',
-    notes: 'Bulk orders for industrial solvents. Requires MSDS for all products.'
+    gstin: '06AAACC1234F1Z5'
   },
   {
     name: 'Anand Patel',
@@ -32,8 +25,7 @@ const sampleClients = [
     phone: '+91-9871234567',
     companyName: 'BioLabs Research Solutions',
     address: 'A-201, Science City Road, Ahmedabad, Gujarat 380060',
-    gstNumber: '24AABBP4567E1Z8',
-    notes: 'Specializes in biotechnology reagents. Always requests COA documents.'
+    gstin: '24AABBP4567E1Z8'
   },
   {
     name: 'Meena Desai',
@@ -41,8 +33,7 @@ const sampleClients = [
     phone: '+91-9834567890',
     companyName: 'DyeChem Industries',
     address: 'B-12, MIDC, Andheri East, Mumbai, Maharashtra 400093',
-    gstNumber: '27AABCD1234F1Z9',
-    notes: 'Dye manufacturing company. Requires color-matched samples before bulk orders.'
+    gstin: '27AABCD1234F1Z9'
   },
   {
     name: 'Vikram Singh',
@@ -50,8 +41,7 @@ const sampleClients = [
     phone: '+91-9812345678',
     companyName: 'PetroRefine Petrochemicals',
     address: 'Refinery Complex, Panipat, Haryana 132140',
-    gstNumber: '06AAAPP9876F1Z2',
-    notes: 'Petrochemical refinery. Large volume orders with strict quality requirements.'
+    gstin: '06AAAPP9876F1Z2'
   },
   {
     name: 'Sunita Agarwal',
@@ -59,8 +49,7 @@ const sampleClients = [
     phone: '+91-9845678901',
     companyName: 'AgroChem Fertilizers Ltd.',
     address: 'NH-8, Near Jaipur, Rajasthan 302028',
-    gstNumber: '08AAACA1234F1Z7',
-    notes: 'Agricultural chemicals. Seasonal demand patterns with bulk pre-monsoon orders.'
+    gstin: '08AAACA1234F1Z7'
   }
 ];
 

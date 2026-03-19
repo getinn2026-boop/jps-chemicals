@@ -40,7 +40,7 @@ export default async function TestDataPage() {
           orderBy: { createdAt: "desc" },
           take: 10,
         }),
-        prisma.product.findMany({
+        prisma.masterProduct.findMany({
           include: { supplier: true },
           orderBy: { createdAt: "desc" },
           take: 10,
@@ -146,7 +146,7 @@ export default async function TestDataPage() {
                   <div className="font-medium text-slate-900">{product.name}</div>
                   <div className="text-sm text-slate-600">{product.sku || "No SKU"}</div>
                   <div className="text-sm text-slate-500">
-                    {product.defaultPrice ? `₹${product.defaultPrice.toString()}/${product.unit}` : "No price"}
+                    {product.listPrice ? `₹${product.listPrice.toString()}/${product.unit}` : "No price"}
                     {product.supplier && (
                       <span className="ml-2 text-blue-600">from {product.supplier.name}</span>
                     )}
