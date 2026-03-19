@@ -16,42 +16,30 @@ function parseCsvNumber(value: unknown) {
 }
 
 export async function createProduct(formData: FormData) {
-  const name = (formData.get("name") ?? "").toString().trim();
-  const sku = normalizeString(formData.get("sku"));
-  const casNumber = normalizeString(formData.get("casNumber"));
-  const unit = normalizeString(formData.get("unit"));
-  const currency = (normalizeString(formData.get("currency")) ?? "INR").toUpperCase();
-  const defaultPriceRaw = normalizeString(formData.get("defaultPrice"));
-  const supplierName = normalizeString(formData.get("supplierName"));
+  try {
+    const data = {
+      name: formData.get("name") as string,
+      sku: (formData.get("sku") as string) || null,
+      casNumber: (formData.get("casNumber") as string) || null,
+      unit: (formData.get("unit") as string) || null,
+      hsnCode: (formData.get("hsnCode") as string) || null,
+      grade: (formData.get("grade") as string) || null,
+      listPrice: formData.get("listPrice")
+        ? new Prisma.Decimal(formData.get("listPrice") as string)
+        : null,
+      supplierId: (formData.get("supplierId") as string) || null,
+    };
 
-  if (!name) {
-    return;
+    const product = await prisma.masterProduct.create({
+      data,
+    });
+
+    revalidatePath("/products");
+    return { success: true, product };
+  } catch (error) {
+    console.error("Failed to create product:", error);
+    return { success: false, error: "Failed to create product" };
   }
-
-  const supplierId = supplierName
-    ? (
-        await prisma.supplier.upsert({
-          where: { name: supplierName },
-          create: { name: supplierName },
-          update: {},
-          select: { id: true },
-        })
-      ).id
-    : null;
-
-  await prisma.product.create({
-    data: {
-      name,
-      sku,
-      casNumber,
-      unit,
-      currency,
-      defaultPrice: defaultPriceRaw ? defaultPriceRaw : null,
-      supplierId,
-    },
-  });
-
-  revalidatePath("/products");
 }
 
 export async function importProductsCsv(formData: FormData) {
@@ -107,4 +95,47 @@ export async function importProductsCsv(formData: FormData) {
 
   revalidatePath("/products");
 }
+
+export async function updateProduct(id: string, formData: FormData) {
+  try {
+    const data = {
+      name: formData.get("name") as string,
+      sku: (formData.get("sku") as string) || null,
+      casNumber: (formData.get("casNumber") as string) || null,
+      unit: (formData.get("unit") as string) || null,
+      hsnCode: (formData.get("hsnCode") as string) || null,
+      grade: (formData.get("grade") as string) || null,
+      listPrice: formData.get("listPrice")
+        ? new Prisma.Decimal(formData.get("listPrice") as string)
+        : null,
+      supplierId: (formData.get("supplierId") as string) || null,
+    };
+
+    const product = await prisma.masterProduct.update({
+      where: { id },
+      data,
+    });
+
+    revalidatePath("/products");
+    return { success: true, product };
+  } catch (error) {
+    console.error("Failed to update product:", error);
+    return { success: false, error: "Failed to update product" };
+  }
+}
+
+export async function deleteProduct(id: string) {
+  try {
+    await prisma.masterProduct.delete({
+      where: { id },
+    });
+    revalidatePath("/products");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete product:", error);
+    return { success: false, error: "Failed to delete product" };
+  }
+}
+
+
 

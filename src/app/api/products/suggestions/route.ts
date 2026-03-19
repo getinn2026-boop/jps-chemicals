@@ -13,33 +13,37 @@ export async function GET(request: Request) {
     }
 
     // Search products by name, starting with the query
-    const products = await prisma.product.findMany({
+    const products = await prisma.masterProduct.findMany({
       where: {
         name: {
           startsWith: query,
           mode: 'insensitive'
         }
       },
-      include: {
-        supplier: true
+      take: 10, // Limit results
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        unit: true,
+        listPrice: true,
+        currency: true,
       },
-      take: 10,
       orderBy: {
         name: 'asc'
       }
     });
 
-    return NextResponse.json({ 
-      products: products.map(product => ({
-        id: product.id,
-        name: product.name,
-        sku: product.sku,
-        unit: product.unit,
-        defaultPrice: product.defaultPrice,
-        supplier: {
-          name: product.supplier?.name || 'Unknown Supplier'
-        }
-      }))
+    return NextResponse.json({
+      success: true,
+      products: products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        sku: p.sku || "",
+        unit: p.unit || "",
+        price: p.listPrice ? Number(p.listPrice) : null,
+        currency: p.currency,
+      })),
     });
   } catch (error) {
     return NextResponse.json({ 

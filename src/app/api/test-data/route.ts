@@ -8,7 +8,8 @@ export async function GET() {
     // Get all data using Prisma
     const suppliers = await prisma.supplier.findMany();
     const clients = await prisma.client.findMany();
-    const products = await prisma.product.findMany();
+    const products = await prisma.masterProduct.findMany();
+    const quotes = await prisma.quote.findMany();
     
     return NextResponse.json({
       success: true,
@@ -16,10 +17,12 @@ export async function GET() {
         suppliers,
         clients,
         products,
+        quotes,
         counts: {
           suppliers: suppliers.length,
           clients: clients.length,
-          products: products.length
+          products: products.length,
+          quotes: quotes.length
         }
       }
     });
