@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/server/db";
+import { Prisma } from "@prisma/client";
 
 import { parse } from "csv-parse/sync";
 
